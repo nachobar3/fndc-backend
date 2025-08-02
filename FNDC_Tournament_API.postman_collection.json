@@ -1,0 +1,519 @@
+{
+	"info": {
+		"_postman_id": "fndc-tournament-api",
+		"name": "FNDC Tournament API",
+		"description": "Complete API collection for FNDC Tournament Management System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"password\": \"password123\",\n    \"preferred_cube\": \"Modern\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "test@example.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "password123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Verify Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"your_verification_token_here\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/verify-email",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"verify-email"
+							]
+						}
+					}
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/forgot-password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"forgot-password"
+							]
+						}
+					}
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"your_reset_token_here\",\n    \"new_password\": \"newpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/reset-password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"reset-password"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"me"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "User Profile",
+			"item": [
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"profile"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Name\",\n    \"email\": \"updated@example.com\",\n    \"preferred_cube\": \"Legacy\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"profile"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Tournaments",
+			"item": [
+				{
+					"name": "Create Tournament (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"FNDC Championship 2024\",\n    \"date\": \"2024-12-15T15:00:00\",\n    \"location\": \"Centro de Convenciones\",\n    \"start_time\": \"15:00\",\n    \"duration_days\": 3,\n    \"rounds\": 8\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/tournaments/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tournaments",
+								""
+							]
+						}
+					}
+				},
+				{
+					"name": "List All Tournaments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/tournaments/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tournaments",
+								""
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Tournament by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/tournaments/{{tournament_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tournaments",
+								"{{tournament_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Register for Tournament",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/tournaments/{{tournament_id}}/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tournaments",
+								"{{tournament_id}}",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Tournament Registrations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/tournaments/{{tournament_id}}/registrations",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tournaments",
+								"{{tournament_id}}",
+								"registrations"
+							]
+						}
+					}
+				},
+				{
+					"name": "Check My Registration",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/tournaments/{{tournament_id}}/my-registration",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tournaments",
+								"{{tournament_id}}",
+								"my-registration"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Cube Proposals",
+			"item": [
+				{
+					"name": "Propose Cube",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tournament_id\": \"{{tournament_id}}\",\n    \"cube_url\": \"https://cubecobra.com/cube/list/example\",\n    \"description\": \"A powerful Modern cube with great synergy\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/cubes/propose",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cubes",
+								"propose"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Enabled Cubes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/cubes/tournament/{{tournament_id}}/enabled",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cubes",
+								"tournament",
+								"{{tournament_id}}",
+								"enabled"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Cube Proposals (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/cubes/tournament/{{tournament_id}}/all",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cubes",
+								"tournament",
+								"{{tournament_id}}",
+								"all"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Cube Status (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"habilitado\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/cubes/{{cube_proposal_id}}/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cubes",
+								"{{cube_proposal_id}}",
+								"status"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "your_jwt_token_here",
+			"type": "string"
+		},
+		{
+			"key": "tournament_id",
+			"value": "tournament_id_here",
+			"type": "string"
+		},
+		{
+			"key": "cube_proposal_id",
+			"value": "cube_proposal_id_here",
+			"type": "string"
+		}
+	]
+} 
