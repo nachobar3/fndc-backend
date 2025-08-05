@@ -1,5 +1,6 @@
 from motor.motor_asyncio import AsyncIOMotorClient
-from .config import settings
+from app.config import settings
+import ssl
 
 
 class Database:
@@ -19,9 +20,39 @@ async def get_db() -> AsyncIOMotorClient:
 
 
 async def connect_to_mongo():
-    db.client = AsyncIOMotorClient(settings.MONGO_URI)
-    print("Connected to MongoDB.")
-    return db.client
+    # Configuración específica para MongoDB Atlas con SSL
+    client_options = {
+        "serverSelectionTimeoutMS": 5000,
+        "connectTimeoutMS": 10000,
+        "socketTimeoutMS": 20000,
+        "maxPoolSize": 10,
+        "minPoolSize": 1,
+        "maxIdleTimeMS": 30000,
+        "retryWrites": True,
+        "retryReads": True,
+        "ssl": True,
+        "ssl_cert_reqs": ssl.CERT_NONE,  # Usar ssl.CERT_NONE en lugar de string
+        "tlsAllowInvalidCertificates": True,
+        "tlsAllowInvalidHostnames": True,
+    }
+    
+    try:
+        db.client = AsyncIOMotorClient(settings.MONGO_URI, **client_options)
+        # Test the connection
+        await db.client.admin.command('ping')
+        print("Connected to MongoDB.")
+        return db.client
+    except Exception as e:
+        print(f"Error connecting to MongoDB: {e}")
+        # Fallback configuration without SSL options
+        try:
+            db.client = AsyncIOMotorClient(settings.MONGO_URI)
+            await db.client.admin.command('ping')
+            print("Connected to MongoDB with fallback configuration.")
+            return db.client
+        except Exception as e2:
+            print(f"Fallback connection also failed: {e2}")
+            raise
 
 
 async def close_mongo_connection():

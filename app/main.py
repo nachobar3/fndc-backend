@@ -27,7 +27,13 @@ app.include_router(cubes.router)
 
 @app.on_event("startup")
 async def startup_event():
-    await connect_to_mongo()
+    try:
+        await connect_to_mongo()
+        print("✅ MongoDB connection established successfully")
+    except Exception as e:
+        print(f"❌ Failed to connect to MongoDB: {e}")
+        # En producción, podrías querer hacer exit(1) aquí
+        # pero para desarrollo, continuamos
 
 
 @app.on_event("shutdown")
