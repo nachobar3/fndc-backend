@@ -25,32 +25,30 @@ async def create_new_tournament(
         raise HTTPException(status_code=400, detail=str(e))
 
 
+# Public endpoints (no authentication required)
 @router.get("/", response_model=List[Tournament])
-async def list_tournaments(current_user: dict = Depends(get_current_active_user)):
-    """Get all tournaments"""
+async def list_tournaments():
+    """Get all tournaments (Public)"""
     tournaments = await get_tournaments()
     return tournaments
 
 
 @router.get("/{tournament_id}", response_model=Tournament)
-async def get_tournament(
-    tournament_id: str,
-    current_user: dict = Depends(get_current_active_user)
-):
-    """Get tournament by ID"""
+async def get_tournament(tournament_id: str):
+    """Get tournament by ID (Public)"""
     tournament = await get_tournament_by_id(tournament_id)
     if not tournament:
         raise HTTPException(status_code=404, detail="Tournament not found")
     return tournament
 
 
-# User endpoints
+# Protected endpoints (authentication required)
 @router.post("/{tournament_id}/register")
 async def register_to_tournament(
     tournament_id: str,
     current_user: dict = Depends(get_current_active_user)
 ):
-    """Register current user to a tournament"""
+    """Register current user to a tournament (Authentication required)"""
     # Check if tournament exists
     tournament = await get_tournament_by_id(tournament_id)
     if not tournament:
@@ -71,7 +69,7 @@ async def get_registrations(
     tournament_id: str,
     current_user: dict = Depends(get_current_active_user)
 ):
-    """Get all registrations for a tournament"""
+    """Get all registrations for a tournament (Authentication required)"""
     # Check if tournament exists
     tournament = await get_tournament_by_id(tournament_id)
     if not tournament:
@@ -86,7 +84,7 @@ async def check_my_registration(
     tournament_id: str,
     current_user: dict = Depends(get_current_active_user)
 ):
-    """Check if current user is registered for a tournament"""
+    """Check if current user is registered for a tournament (Authentication required)"""
     # Check if tournament exists
     tournament = await get_tournament_by_id(tournament_id)
     if not tournament:

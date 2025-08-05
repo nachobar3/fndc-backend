@@ -11,13 +11,13 @@ from ..crud import (
 router = APIRouter(prefix="/cubes", tags=["cubes"])
 
 
-# User endpoints
+# User endpoints (authentication required)
 @router.post("/propose", response_model=CubeProposal)
 async def propose_cube(
     proposal: CubeProposalCreate,
     current_user: dict = Depends(get_current_active_user)
 ):
-    """Propose a cube for a tournament"""
+    """Propose a cube for a tournament (Authentication required)"""
     # Check if tournament exists
     tournament = await get_tournament_by_id(proposal.tournament_id)
     if not tournament:
@@ -30,12 +30,10 @@ async def propose_cube(
         raise HTTPException(status_code=400, detail=str(e))
 
 
+# Public endpoints (no authentication required)
 @router.get("/tournament/{tournament_id}/enabled", response_model=List[CubeProposal])
-async def get_enabled_cubes(
-    tournament_id: str,
-    current_user: dict = Depends(get_current_active_user)
-):
-    """Get all enabled cubes for a tournament"""
+async def get_enabled_cubes(tournament_id: str):
+    """Get all enabled cubes for a tournament (Public)"""
     # Check if tournament exists
     tournament = await get_tournament_by_id(tournament_id)
     if not tournament:
@@ -45,7 +43,7 @@ async def get_enabled_cubes(
     return cubes
 
 
-# Admin endpoints
+# Admin endpoints (admin authentication required)
 @router.get("/tournament/{tournament_id}/all", response_model=List[CubeProposal])
 async def get_all_cube_proposals(
     tournament_id: str,
