@@ -34,12 +34,14 @@ class User(UserBase):
     id: str
     role: UserRole = UserRole.USER
     is_verified: bool = False
+    google_id: Optional[str] = None
+    picture: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
 
 class UserInDB(User):
-    hashed_password: str
+    hashed_password: Optional[str] = None
 
 
 class TournamentBase(BaseModel):
@@ -106,4 +108,8 @@ class PasswordResetConfirm(BaseModel):
 
 
 class EmailVerification(BaseModel):
+    token: str
+
+
+class GoogleToken(BaseModel):
     token: str 

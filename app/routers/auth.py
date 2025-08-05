@@ -1,10 +1,11 @@
 from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from ..models import UserCreate, Token, PasswordReset, PasswordResetConfirm, EmailVerification
+from ..models import UserCreate, Token, PasswordReset, PasswordResetConfirm, EmailVerification, GoogleToken
 from ..auth import create_access_token, get_current_user, get_password_hash
-from ..crud import create_user, authenticate_user, get_user_by_email, verify_user_email, update_user_password
+from ..crud import create_user, authenticate_user, get_user_by_email, verify_user_email, update_user_password, get_user_by_google_id, create_google_user
 from ..email_service import email_service
+from ..google_auth import google_auth_service
 from ..config import settings
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
@@ -97,4 +98,92 @@ async def reset_password(reset_confirm: PasswordResetConfirm):
 @router.get("/me", response_model=dict)
 async def get_current_user_info(current_user: dict = Depends(get_current_user)):
     """Get current user information"""
-    return current_user 
+    return current_user
+
+
+@router.post("/google", response_model=Token)
+async def google_auth(google_token: GoogleToken):
+    """Authenticate user with Google token"""
+    try:
+        # Verify Google token and get user info
+        user_info = await google_auth_service.verify_google_token(google_token.token)
+        
+        # Check if user exists by Google ID
+        user = await get_user_by_google_id(user_info["google_id"])
+        
+        if not user:
+            # Check if user exists by email (for linking existing accounts)
+            user = await get_user_by_email(user_info["email"])
+            
+            if user:
+                # Link existing account with Google
+                user = await create_google_user(user_info)
+            else:
+                # Create new Google user
+                user = await create_google_user(user_info)
+        
+        # Create access token
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": user["email"]}, expires_delta=access_token_expires
+        )
+        
+        return {"access_token": access_token, "token_type": "bearer"}
+        
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error during Google authentication"
+        )
+
+
+# ⚠️ SOLO PARA DESARROLLO - ELIMINAR EN PRODUCCIÓN
+@router.post("/create-admin", response_model=dict)
+async def create_admin_user(admin_data: UserCreate):
+    """Create an admin user (DEVELOPMENT ONLY)"""
+    try:
+        # Verificar si ya existe un admin (opcional, para seguridad)
+        from ..crud import get_user_by_email
+        existing_admin = await get_user_by_email(admin_data.email)
+        if existing_admin:
+            raise HTTPException(status_code=400, detail="User already exists")
+        
+        # Crear usuario admin
+        from datetime import datetime, UTC
+        from ..auth import get_password_hash
+        from ..models import UserRole
+        from ..database import get_database
+        
+        db = await get_database()
+        now = datetime.now(UTC)
+        
+        admin_user = {
+            "email": admin_data.email,
+            "name": admin_data.name,
+            "hashed_password": get_password_hash(admin_data.password),
+            "role": UserRole.ADMIN,
+            "is_verified": True,
+            "created_at": now,
+            "updated_at": now
+        }
+        
+        result = await db.fndc.users.insert_one(admin_user)
+        admin_user["id"] = str(result.inserted_id)
+        
+        return {
+            "message": "Admin user created successfully",
+            "user_id": admin_user["id"],
+            "email": admin_user["email"],
+            "role": admin_user["role"]
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating admin user: {str(e)}") 
